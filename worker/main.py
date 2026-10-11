@@ -61,6 +61,7 @@ class ProcessRequest(BaseModel):
     storageKey: str
     filename: str = ""
     sourceType: str = "report"
+    insights: bool | None = None  # None: the GENERATE_INSIGHTS default
 
 
 
@@ -179,7 +180,7 @@ async def _process_pages(req: ProcessRequest, source_path: str, filename: str):
 
         # ── Step 3: Select important paragraphs ──────────────────────────
         logger.info('[%s] Selecting key paragraphs...', req.documentId)
-        important_paragraphs = select_important_paragraphs(pages) if GENERATE_INSIGHTS else []
+        important_paragraphs = select_important_paragraphs(pages) if (GENERATE_INSIGHTS if req.insights is None else req.insights) else []
         logger.info('[%s] selected %d paragraphs for insight', req.documentId, len(important_paragraphs))
 
         # ── Steps 4 & 5: Generate insights concurrently ──────────────────

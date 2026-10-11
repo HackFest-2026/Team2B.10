@@ -15,7 +15,7 @@ export default function InsightSidebar({ insights }) {
       }}>
         <div style={{ fontSize: 30, marginBottom: 10 }}>💡</div>
         <p style={{ fontSize: 15, fontWeight: 600 }}>No insights yet</p>
-        <p style={{ fontSize: 12, marginTop: 6 }}>Select text in the PDF to add your own note. Automatic insights are optional and are produced only when the worker runs with GENERATE_INSIGHTS=1.</p>
+        <p style={{ fontSize: 12, marginTop: 6 }}>Select text in the PDF to add your own note. Automatic insights are optional and are added per document with the "Add highlights" button (uploads skip them to stay fast).</p>
       </div>
     );
   }

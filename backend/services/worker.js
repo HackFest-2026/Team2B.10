@@ -8,7 +8,8 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function triggerProcessing({ documentId, projectId, storageKey, filename, sourceType }) {
+// insights: true adds the per-paragraph highlights and notes to PDFs; units (the citable structure) are always built
+async function triggerProcessing({ documentId, projectId, storageKey, filename, sourceType, insights = process.env.UPLOAD_INSIGHTS === '1' }) {
   let lastError;
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
@@ -18,6 +19,7 @@ async function triggerProcessing({ documentId, projectId, storageKey, filename, 
         storageKey,
         filename,
         sourceType,
+        insights,
       }, { timeout: Number(process.env.WORKER_TIMEOUT_MS || 1800000) });
       return response.data;
     } catch (err) {

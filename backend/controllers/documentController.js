@@ -142,7 +142,7 @@ async function reprocessDocument(req, res) {
     await Document.findByIdAndUpdate(document._id, { status: 'PROCESSING', errorMessage: '' });
     await record(req.userId, 'DOCUMENT_REPROCESS', `document:${document._id}`, { filename: document.filename });
 
-    triggerProcessing({ documentId: document._id.toString(), projectId: document.projectId.toString(), storageKey, filename: document.filename, sourceType: document.sourceType })
+    triggerProcessing({ documentId: document._id.toString(), projectId: document.projectId.toString(), storageKey, filename: document.filename, sourceType: document.sourceType, insights: true })
       .then((result) => storeResult(document, result))
       .catch(async (err) => {
         console.error('Reprocessing failed:', err.message);

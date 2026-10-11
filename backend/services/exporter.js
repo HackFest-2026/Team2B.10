@@ -72,7 +72,7 @@ async function exportDraft({ draft, userId, clearance, includeUnverified = false
   };
 
   const manifestClaims = [];
-  const sections = view.sections.map((s) => {
+  const builtSections = view.sections.map((s) => {
     const items = s.claims.filter((c) => included.has(c.id)).map((c) => {
       const cites = [...new Set(c.evidence.map(cite))];
       manifestClaims.push({
@@ -83,6 +83,27 @@ async function exportDraft({ draft, userId, clearance, includeUnverified = false
       return { text: c.text, status: c.status, cites };
     });
     return { key: s.key, heading: s.heading, items: s.redacted ? [...items, { redacted: true, count: s.redacted }] : items };
+  });
+
+  // Sections built from the report's records rather than written by the model
+  const line = (text) => ({ text, status: 'supported', cites: [] });
+  const cov = view.coverage;
+  const sections = builtSections.map((s) => {
+    if (s.key === 'scope' && cov) {
+      const rows = cov.documents.map((d) => line(`${d.filename} (${d.sourceType}, ${CLASSIFICATIONS[d.classification]}, ${d.units} evidence units).`));
+      return { ...s, items: rows.length ? [...rows, ...(cov.hiddenDocuments ? [{ redacted: true, count: cov.hiddenDocuments }] : [])] : s.items };
+    }
+    if (s.key === 'gaps' && cov) {
+      const items = cov.gaps.examples.map((g) => line(`${g.filename}: ${g.text}`));
+      return { ...s, items: [line(`${cov.gaps.total} passage(s) state times, counts or dates that were not matched to any other source.`), ...items] };
+    }
+    if (s.key === 'provenance') {
+      return { ...s, items: [
+        line(`Every statement above is mapped to its source passage in the signed manifest accompanying this PDF (key ${signing.keyId()}).`),
+        ...citations.map((c) => line(`[${c.n}] ${c.filename}, ${describeLocation(c.loc)}, passage hash ${c.unitSha256.slice(0, 16)}…`)),
+      ] };
+    }
+    return s;
   });
 
   const excluded = view.sections.flatMap((s) => s.claims.filter((c) => !included.has(c.id)).map((c) => ({

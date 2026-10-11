@@ -155,6 +155,10 @@ const identifiers = (subject) => new Set(subject.toLowerCase().split(/\s+/).filt
 // Words that name no particular thing. In long documents (papers, manuals) a fact is only comparable with another
 // when both are about the same specific subject, so these are ignored when matching subjects.
 const GENERIC = new Set(['the', 'a', 'an', 'of', 'and', 'for', 'in', 'on', 'to', 'our', 'we', 'it', 'its', 'this', 'that', 'paper', 'papers', 'model', 'models', 'method', 'methods', 'approach', 'system', 'systems', 'score', 'scores', 'result', 'results', 'performance', 'task', 'tasks', 'value', 'values', 'number', 'accuracy', 'metric', 'overall', 'total', 'average', 'work', 'study', 'dataset', 'data', 'arxiv', 'preprint', 'document', 'report', 'article', 'publication', 'date', 'version', 'training', 'learning', 'evaluation', 'time', 'duration', 'size', 'step', 'steps', 'epoch', 'epochs', 'test', 'dev', 'setting', 'baseline']);
+// A field that names no specific quantity ("statement time", "duration", "date") matches every other such field, so
+// unrelated times and counts from different events would be reported as disagreeing.
+const VAGUE_FIELD_WORDS = new Set(['statement', 'stated', 'event', 'local', 'reported', 'recorded', 'unspecified', 'unknown', 'general', 'status']);
+const isVagueField = (field = '') => ![...contentTokens(field)].some((t) => !VAGUE_FIELD_WORDS.has(t));
 const contentTokens = (subject = '') => new Set(subject.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 2 && !GENERIC.has(t)));
 
 /**
@@ -205,6 +209,7 @@ function buildConflicts(entries, { embeddings, cosine, strictDocs } = {}) {
   for (const e of entries) {
     const norm = normalizeValue(e.fact.value, e.fact.type, e.fact.quote);
     if (!norm) continue;
+    if (isVagueField(e.fact.field)) continue;
     if (norm.kind === 'text' && !comparableAsCode(e.fact.field)) continue; // identifiers and free text: not compared here
     items.push({ ...e, norm });
   }

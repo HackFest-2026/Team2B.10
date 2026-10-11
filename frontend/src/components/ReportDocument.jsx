@@ -58,7 +58,29 @@ export default function ReportDocument({ draft, documents, templateLabel }) {
       {sections.map((s, i) => (
         <section key={s.key}>
           <h2 style={h2}>{i + 1}. {s.heading}</h2>
-          {s.claims.length === 0 && !s.redacted && <p style={{ ...meta, fontStyle: 'italic' }}>No verifiable statements for this section.</p>}
+          {s.key === 'scope' && draft.coverage && (
+            <>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }} data-testid="coverage-table">
+                <thead><tr style={{ textAlign: 'left', ...meta }}><th>Document</th><th>Type</th><th>Classification</th><th>Units</th></tr></thead>
+                <tbody>
+                  {draft.coverage.documents.map((d) => (
+                    <tr key={d.id} style={{ borderTop: '1px solid #ece6e0' }}><td style={{ padding: '6px 0' }}>{d.filename}</td><td>{d.sourceType}</td><td><ClassificationBadge level={d.classification} /></td><td>{d.units}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+              {draft.coverage.hiddenDocuments > 0 && <p style={{ ...meta, fontStyle: 'italic' }}>[{draft.coverage.hiddenDocuments} document(s) above your clearance are hidden]</p>}
+            </>
+          )}
+          {s.key === 'gaps' && draft.coverage && (
+            <>
+              <p style={{ fontSize: 15, lineHeight: 1.7 }}>{draft.coverage.gaps.total} passage(s) state times, counts or dates that were not matched to any other source, so they could not be compared.</p>
+              <ul style={{ fontSize: 14, margin: 0, paddingLeft: 20 }}>{draft.coverage.gaps.examples.map((g, k) => <li key={k}><b>{g.filename}</b>: {g.text}</li>)}</ul>
+            </>
+          )}
+          {s.key === 'provenance' && (
+            <p style={{ fontSize: 15, lineHeight: 1.7 }}>Every numbered citation below maps a statement to its exact source passage. Exporting a signed PDF adds the manifest with passage and file hashes and the signature.</p>
+          )}
+          {s.claims.length === 0 && !s.redacted && !['scope', 'gaps', 'provenance'].includes(s.key) && <p style={{ ...meta, fontStyle: 'italic' }}>No verifiable statements for this section.</p>}
           {s.key === 'conflicts' && s.claims.length > 0 ? (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
               <tbody>

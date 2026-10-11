@@ -37,6 +37,7 @@ const DraftSchema = new mongoose.Schema({
     heading: String,
     claims: [ClaimSchema],
   }],
+  coverage: { type: mongoose.Schema.Types.Mixed, default: undefined }, // sources in scope and unresolved gaps (consolidated report)
   rejected: [{ _id: false, section: String, text: String, reason: String, classification: Number }], // dropped before they were ever claims
   stats: { type: mongoose.Schema.Types.Mixed, default: {} },
   model: { type: mongoose.Schema.Types.Mixed, default: {} },
