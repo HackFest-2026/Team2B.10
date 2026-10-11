@@ -20,14 +20,12 @@ Mirage ingests scanned documents, reports, conversation logs and system logs at 
 | Synthesis with citations, claim verification (NLI) | `backend/services/draftGenerator.js`, `worker/nli.py` |
 | Provenance, hashing, signatures, audit trail | `backend/services/exporter.js`, `signing.js`, `audit.js` |
 | Classification enforcement and redaction | `backend/services/retrieval.js`, `draftView.js`, every route |
-| Fully on-prem | [Deployment](#deployment) · no hosted endpoints (tested) |
-| KPIs | [`docs/EVALUATION.md`](docs/EVALUATION.md), `eval/` |
+| Fully on-prem | [Quick start](#quick-start-local) · no hosted endpoints at runtime (tested) |
+| KPIs | [Quality gates](#quality-gates), `eval/` |
 
 ---
 
 ## How it works
-
-![Mirage system architecture](docs/architecture.svg)
 
 ```text
 React UI ──► Express API ── auth · ownership · clearance · audit hash-chain ──► MongoDB
@@ -90,23 +88,9 @@ cd worker   && python -m venv .venv && source .venv/bin/activate && pip install 
 
 The first worker start downloads two small models (MiniLM embeddings, a DeBERTa NLI model) from Hugging Face; after that the worker switches itself to offline mode (`worker/offline.py`: it detects both models in the local cache and sets `HF_HUB_OFFLINE=1`, so it makes no outbound calls; the startup log says which mode it is in). New users have clearance 0; grant more with `node backend/scripts/set-clearance.js <email> <0-3>`.
 
-## Deployment
+## Configuration
 
-```bash
-cp .env.example .env            # set JWT_SECRET
-docker compose up --build       # app at http://localhost:3000 (the API is served under /api)
-```
-
-This uses the **host's** Ollama (`OLLAMA_URL=http://host.docker.internal:11434`). Only the frontend publishes a port; MongoDB, the worker and the API are reachable only from inside the compose network.
-
-**Air-gapped** (no container can reach the internet; Ollama runs as a container):
-
-```bash
-OLLAMA_MODELS_DIR=$HOME/.ollama \
-  docker compose -f docker-compose.yml -f docker-compose.airgap.yml up --build
-```
-
-Build the images once on a connected machine (the worker image bakes in its models), `docker save`/`docker load` them on the isolated host, and mount a models directory that already contains `qwen3:14b`. The airgap file puts everything except the frontend on an `internal: true` network.
+Environment files are `backend/.env`, `worker/.env` and `frontend/.env` (copy from the `.env.example` next to each). `STORAGE_DIR` must point at the same directory for the backend and the worker; keep `SIGNING_KEY_DIR` somewhere the worker cannot read.
 
 | Setting | Where | Default |
 |---|---|---|
@@ -130,9 +114,7 @@ Build the images once on a connected machine (the worker image bakes in its mode
 
 *Analysis* reads long documents in stages, because every model call costs time on a laptop: only sentences that state a number, date, owner or cause (and names) are sent to the model, up to a per-run budget, and the page tells you how many are still waiting; run it again to continue. Short sources (reports, chats, notices) are read in full. Raise the budgets on stronger hardware with `ANALYSIS_MAX_FACT_UNITS` (default 40) and `ANALYSIS_MAX_ENTITY_UNITS` (default 30) in `backend/.env`. Report templates: *Incident report* (one event across reports, chats, logs and notices), *Briefing* (key facts first, for a decision-maker) and *Research brief* (several papers, each written about separately). The Report tab shows the report as a document (numbered sections, numbered citations, a list of cited sources); *Review statements* switches to per-statement editing, and the exported PDF has the same structure. Source classification levels (Unclassified to Top Secret) are explained next to the upload controls.
 
-Real-world demo data (arXiv papers of 15 to 18 pages, real system logs, real JSON) is described in [`samples/demo/README.md`](samples/demo/README.md); fetch it with `scripts/fetch-demo-data.sh`.
-
-A five-minute walkthrough with generated demo data is in [`docs/DEMO.md`](docs/DEMO.md).
+Demo data: `eval/make_corpus.py` generates a seeded corpus (all four source types, planted conflicts, aliases, duplicates and degraded scans) you can upload through the UI.
 
 ## API
 
@@ -151,11 +133,14 @@ Base URL `/api` (`:5001/api` when run locally). All routes except `/auth/*` need
 ## Quality gates
 
 ```bash
-scripts/release-check.sh            # unit + integration tests, frontend build, corpus checks
-scripts/release-check.sh --full     # also runs the end-to-end evaluation against a live stack
+(cd backend && npm test)                                    # API / security / export integration tests (needs MongoDB)
+(cd worker && python -m unittest discover -s tests)         # parsers, entities, facts, rerank, render
+(cd eval && python -m unittest discover -s tests)           # corpus and metric checks
+(cd frontend && npm run build)
+python eval/run_eval.py --api http://localhost:5001/api --seed 7   # end-to-end evaluation against a live stack
 ```
 
-The evaluation (`eval/`) generates a seeded corpus with ground truth (planted conflicts, aliases, duplicates, degraded scans, canary strings at every classification level), drives the real stack, and reports OCR accuracy, extraction F1, entity-resolution accuracy, conflict recall/precision, citation correctness, hallucination rate, spillage and timing. **Any classification spillage, any exported statement that asserts a value its citations do not contain, or any export that fails verification is a release blocker.** See [`docs/EVALUATION.md`](docs/EVALUATION.md).
+The evaluation (`eval/`) generates a seeded corpus with ground truth (planted conflicts, aliases, duplicates, degraded scans, canary strings at every classification level), drives the real stack, and reports OCR accuracy, extraction F1, entity-resolution accuracy, conflict recall/precision, citation correctness, hallucination rate, spillage and timing. Results are written to `eval/results/`. **Any classification spillage, any exported statement that asserts a value its citations do not contain, or any export that fails verification is a release blocker** (non-zero exit; `--strict` also fails on missed targets; `--stages` and `--quick` shorten a run).
 
 ## Repository map
 
@@ -165,8 +150,6 @@ The evaluation (`eval/`) generates a seeded corpus with ground truth (planted co
 | `worker/` | FastAPI worker: parsers, OCR, embeddings, NER, facts, NLI, PDF rendering (`python -m unittest discover -s tests`) |
 | `frontend/` | React app: sources, analysis, report editor, verification, graph |
 | `eval/` | Corpus generator, scorer, evaluation runner |
-| `samples/` | Small hand-written incident (all four source types, planted contradictions) |
-| `docs/` | Plans, evaluation notes, demo script |
 
 ## Troubleshooting
 
