@@ -10,3 +10,4 @@ eval/results/
 .test-account
 .run/
 samples/demo/papers/*.pdf
+samples/demo/aviation/*.pdf
