@@ -1,0 +1,425 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   Design Tokens — Warm Parchment System
+   Matches the landing page's warm brown / cream palette
+   ========================================================================= */
+:root {
+  /* Font */
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, serif;
+
+  /* Surfaces */
+  --bg:           #F5F1EE;
+  --surface:      #FFFFFF;
+  --surface2:     #F9F7F5;
+  --surface3:     #EDE9E6;
+
+  /* Borders */
+  --border:       #E2DBD5;
+  --border-strong:#C9C0B8;
+
+  /* Brand / Accent */
+  --accent:       #37322F;
+  --accent-light: #4A4440;
+  --accent-dim:   rgba(55, 50, 47, 0.08);
+
+  /* Text */
+  --text:         #2A2520;
+  --text-secondary:#37322F;
+  --text-dim:     #6B6460;
+
+  /* Semantic */
+  --success:      #2D6A4F;
+  --error:        #C0392B;
+  --warning:      #92600A;
+
+  --radius: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--accent); text-decoration: none; }
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 36px;
+  height: 68px;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  cursor: pointer;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  transition: opacity 0.15s ease;
+}
+.navbar-brand:hover { opacity: 0.75; }
+
+.navbar-sep {
+  color: var(--border-strong);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.navbar-breadcrumb {
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.15s ease;
+}
+.navbar-breadcrumb:hover { color: var(--text); }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 20px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+}
+.btn:active:not(:disabled) { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-light);
+  border-color: var(--accent-light);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface2);
+  border-color: var(--border-strong);
+}
+
+.btn-danger {
+  background: #fdf2f2;
+  color: #9b2020;
+  border-color: #f0c0c0;
+}
+.btn-danger:hover:not(:disabled) {
+  background: #fce8e8;
+  border-color: #e09090;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(55, 50, 47, 0.05), 0 12px 28px rgba(55, 50, 47, 0.04);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s cubic-bezier(0.22,1,0.36,1);
+}
+.card:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 16px rgba(55, 50, 47, 0.07), 0 20px 40px rgba(55, 50, 47, 0.07);
+  transform: translateY(-1px);
+}
+
+.page { min-height: 100vh; background: transparent; }
+.container { max-width: 1240px; margin: 0 auto; padding: 0 36px; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.badge-processing {
+  background: #fdf6e3;
+  color: #92600A;
+  border: 1px solid #e9c97a;
+}
+.badge-done {
+  background: #edf8f2;
+  color: #2D6A4F;
+  border: 1px solid #9dd4b5;
+}
+.badge-error {
+  background: #fdf2f2;
+  color: #9b2020;
+  border: 1px solid #eea8a8;
+}
+.badge-uploaded {
+  background: var(--surface2);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+/* ── Spinner ─────────────────────────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ── Toasts ──────────────────────────────────────────────────────────────── */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 13px 17px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  animation: toastIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  max-width: 360px;
+  box-shadow: 0 8px 24px rgba(55, 50, 47, 0.14);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast-success {
+  background: #edf8f2;
+  color: #1e5e3d;
+  border: 1px solid #9dd4b5;
+}
+.toast-error {
+  background: #fdf2f2;
+  color: #9b2020;
+  border: 1px solid #eea8a8;
+}
+.toast-info {
+  background: #f8f5f2;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+
+/* ── Confirm Modal ────────────────────────────────────────────────────── */
+@keyframes modalOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(42, 37, 32, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: modalOverlayIn 0.18s ease-out;
+}
+
+.confirm-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 30px 24px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 16px 48px rgba(55, 50, 47, 0.18), 0 2px 8px rgba(55, 50, 47, 0.08);
+  animation: modalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.confirm-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin: 0 0 22px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-danger {
+  background: #d94444;
+  color: #fff;
+  border: 1px solid #c73b3b;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.btn-danger:hover {
+  background: #c23030;
+}
+
+.btn-ghost {
+  background: var(--surface2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.btn-ghost:hover {
+  background: var(--surface3);
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 16px;
+  height: 44px;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.input:focus {
+  border-color: var(--accent-light);
+  box-shadow: 0 0 0 3px rgba(55, 50, 47, 0.10);
+}
+.input::placeholder {
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+textarea.input {
+  height: auto;
+  min-height: 120px;
+  padding: 12px 16px;
+  resize: vertical;
+}
+
+/* ── Empty states ────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 72px 24px;
+  color: var(--text-dim);
+}
+.empty-state h3 {
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.grid { display: grid; gap: 20px; }
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+/* ── Document viewer tab ─────────────────────────────────────────────────── */
+.dvTab {
+  flex: 1;
+  padding: 13px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  transition: color 0.15s, border-color 0.15s;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+}
+.dvTab:hover { color: var(--text-secondary); }
+.dvTab.tab-active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+@media (max-width: 960px) {
+  .navbar { padding: 0 18px; height: 60px; }
+  .navbar-brand { font-size: 24px; }
+  .container { padding: 0 18px; }
+}

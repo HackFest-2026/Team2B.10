@@ -1,0 +1,12 @@
+.DS_Store
+.env
+backend/node_modules
+frontend/node_modules
+storage/
+__pycache__/
+keys/
+eval/corpus/
+eval/results/
+.test-account
+.run/
+samples/demo/papers/*.pdf
